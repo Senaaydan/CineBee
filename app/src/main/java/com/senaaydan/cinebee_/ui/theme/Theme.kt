@@ -9,18 +9,29 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.*
+
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = CinebeeYellow,
+    secondary = CinebeeOrange,
+    background = CineBeeBackground,
+    surface = CineBeeSurface,
+    onPrimary = Color.Black,
+    onBackground = CinebeeText,
+    onSurface = CinebeeText
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = CinebeeYellow,
+    secondary = CinebeeOrange,
+    background = CineBeeBackground,
+    surface = CineBeeSurface,
+    onPrimary = Color.Black,
+    onBackground = CinebeeText,
+    onSurface = CinebeeText
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -33,11 +44,12 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+
 @Composable
 fun CineBee_Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
