@@ -9,6 +9,11 @@ object DummyData {
         return categories.flatMap { it.movies }.find { it.id == id }
 
     }
+
+    fun getMovies() {
+        TODO("Not yet implemented")
+    }
+
     val categories = listOf(
         Category(
             id = 1,

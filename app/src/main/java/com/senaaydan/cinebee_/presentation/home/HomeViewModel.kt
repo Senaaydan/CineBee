@@ -23,12 +23,12 @@ class HomeViewModel : ViewModel() {
 
     fun onIntent(intent: HomeIntent) {
         when (intent){
-            is HomeIntent.FavoritesClicked -> {
-                TODO()
-            }
-            is HomeIntent.MovieClicked -> {
-                TODO()
-            }
+            is HomeIntent.FavoritesClicked -> Unit
+            // Navigate kurarken doldurulacak
+
+            is HomeIntent.MovieClicked -> Unit
+
+
             is HomeIntent.SearchQueryChanged -> {
                 _state.value = _state.value.copy(searchQuery = intent.query)
                 val filteredMovies = allCategories.flatMap { it.movies }.filter {

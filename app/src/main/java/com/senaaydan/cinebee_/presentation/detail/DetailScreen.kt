@@ -48,12 +48,12 @@ import androidx.compose.ui.unit.TextUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(movieId: Int,onFavoritesClick: () -> Unit = {}){
-    var isFavorite by remember { mutableStateOf(false) }
-    val movie = DummyData.getMovieId(movieId)
+fun DetailScreen(movieId: Int,state: DetailState,onIntent: (DetailIntent) -> Unit ){
+    val movie=state.movie
+
     if (movie == null) {
-            Text("Film bulunamadı.")
-         return
+        Text("Film bulunamadı.")
+        return
     }
 
     Scaffold(
@@ -71,9 +71,9 @@ fun DetailScreen(movieId: Int,onFavoritesClick: () -> Unit = {}){
                 },
                 actions = {
                     IconButton(
-                        onClick =  { onFavoritesClick() } ,
+                        onClick = { onIntent(DetailIntent.FavoritesClicked)  },
 
-                    )
+                        )
                     {
                         Icon(
                             imageVector = Icons.Default.Bookmark,
@@ -88,25 +88,41 @@ fun DetailScreen(movieId: Int,onFavoritesClick: () -> Unit = {}){
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-        }) {paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues),
+        }) { paddingValues ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
 
-            horizontalAlignment = Alignment.CenterHorizontally)
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
         {
 
             Card(modifier = Modifier.fillMaxWidth().height(300.dp)) {
 
-                Box(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
-                    IconButton(onClick = {
-                       isFavorite = !isFavorite
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.background)
+                ) {
+                    IconButton(
+                        onClick = {
+                            onIntent(DetailIntent.ToggleFavoritesClicked)
 
-                    },
-                        modifier = Modifier.align(Alignment.TopEnd)) {
-                        Icon(imageVector = Icons.Default.Favorite, contentDescription = "Favorite",tint = if (isFavorite) Color.Red else Color.White)
-                    }
-                    Row(modifier = Modifier.padding(10.dp).align(Alignment.BottomStart)
+                        },
+                        modifier = Modifier.align(Alignment.TopEnd)
                     ) {
-                        Icon(imageVector = Icons.Default.Star, contentDescription = "IMDdb", tint = Color.Yellow)
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Favorite",
+                            tint = if (state.isFavorite) Color.Red else Color.White
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.padding(10.dp).align(Alignment.BottomStart)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "IMDdb",
+                            tint = Color.Yellow
+                        )
                         Text(text = " ${movie.imdb}", color = Color.White)
                     }
                 }
@@ -117,28 +133,28 @@ fun DetailScreen(movieId: Int,onFavoritesClick: () -> Unit = {}){
 
                 Text(text = "${movie.year} • ${movie.duration}")
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    Text(text = movie.cast.joinToString(", "){actor -> actor.name},
+                    Text(
+                        text = movie.cast.joinToString(", ") { actor -> actor.name },
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = TextUnit.Unspecified,
                         fontFamily = FontFamily.SansSerif,
                         style = MaterialTheme.typography.bodyLarge,
-                        
-                    )
+
+                        )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                         Text(text = movie.description,
-                             style = MaterialTheme.typography.bodyLarge,
-                             fontFamily = FontFamily.SansSerif,
-                             fontSize = TextUnit.Unspecified)}
-
-
-
+                    Text(
+                        text = movie.description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = TextUnit.Unspecified
+                    )
+                }
 
 
             }
-
 
 
         }
@@ -146,14 +162,14 @@ fun DetailScreen(movieId: Int,onFavoritesClick: () -> Unit = {}){
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun DetailScreenPreview() {
     CineBee_Theme {
         DetailScreen(
-            movieId = 1
+            movieId = 1,
+            state = DetailState(),
+            onIntent = {}
         )
     }
 

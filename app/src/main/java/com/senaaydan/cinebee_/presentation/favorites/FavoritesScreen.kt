@@ -48,21 +48,22 @@ import com.senaaydan.cinebee_.data.local.DummyData.categories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(navController: NavController) {
-    val favoriteList = categories.flatMap { it.movies }
+fun FavoritesScreen(navController: NavController,state: FavoritesState,onIntent :(FavoritesIntent) -> Unit ) {
 
 
-    if (favoriteList.isEmpty()) {
-        EmptyFavoritesScreen(navController)
+    if (state.favoriteMovies.isEmpty()) {
+        EmptyFavoritesScreen(navController, onIntent= onIntent )
     } else {
-        FavoriteList(navController)
+        FavoriteList(navController=navController, state=state,onIntent= onIntent)
     }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmptyFavoritesScreen(navController: NavController) {
+fun EmptyFavoritesScreen(
+    navController: NavController,onIntent :(FavoritesIntent) -> Unit = {}
+) {
 
 
     Scaffold(
@@ -110,7 +111,7 @@ fun EmptyFavoritesScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
             Column()
             {
-                IconButton(onClick = { navController.navigate("home") }, modifier = Modifier
+                IconButton(onClick = { onIntent(FavoritesIntent.BrowseMoviesClicked) }, modifier = Modifier
                     .size(60.dp)
                     .align(alignment = Alignment.CenterHorizontally)) {
                     Icon(
@@ -133,12 +134,12 @@ fun EmptyFavoritesScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteList(navController: NavController,
-                 favoriteList: List<Movie> = categories.flatMap { it.movies }) {
-    var searchQuery by remember { mutableStateOf("") }
+                 state: FavoritesState,onIntent: (FavoritesIntent) -> Unit) {
 
-    val filteredFavorites = favoriteList.filter {
-        it.title.startsWith(searchQuery, ignoreCase = true)
-    }
+
+    /* state.favoriteMovies.filter {
+        it.title.startsWith(state.searchQuery, ignoreCase = true)
+    }*/
 
 
     Scaffold(
@@ -175,7 +176,7 @@ fun FavoriteList(navController: NavController,
 
             paddingValues ->
         Column(modifier = Modifier.fillMaxWidth().padding(paddingValues)) {
-            SearchBar(query = searchQuery, onQueryChange = { searchQuery = it }, placeholder = "Favorilerimde Ara..."
+            SearchBar(query = state.searchQuery, onQueryChange = { onIntent(FavoritesIntent.SearchQueryChanged(it))  }, placeholder = "Favorilerimde Ara..."
             )
             LazyColumn(
                 modifier = Modifier
@@ -184,23 +185,23 @@ fun FavoriteList(navController: NavController,
                 contentPadding = PaddingValues(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (searchQuery.length < 2) {
+                if (state.searchQuery.isBlank()) {
 
-                    items(favoriteList) { movie ->
+                    items(state.favoriteMovies) { movie ->
                         FavoriteMovieCard(
                             movie = movie,
                             onMovieClick = {
-                                navController.navigate("detail/${movie.id}")
+                                onIntent(FavoritesIntent.MovieClicked(movie.id))
                             },
                             onRemoveClick = {
-
+                              onIntent(FavoritesIntent.RemoveFavoriteClicked(movie.id))
                             }
                         )
                     }
 
                 } else {
 
-                    if (filteredFavorites.isEmpty()) {
+                    if (state.filteredFavorites.isEmpty()) {
 
                         item {
                             Column(
@@ -224,7 +225,7 @@ fun FavoriteList(navController: NavController,
                                 )
 
                                 Text(
-                                    text = "\"$searchQuery\" isimli favori bulunamadı.",
+                                    text = "{$state.searchQuery} isimli favori bulunamadı.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -246,7 +247,7 @@ fun FavoriteList(navController: NavController,
                                 )
 
                                 Text(
-                                    text = "${filteredFavorites.size} film bulundu",
+                                    text = "${state.filteredFavorites.size} film bulundu",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -255,15 +256,16 @@ fun FavoriteList(navController: NavController,
                             }
                         }
 
-                        items(filteredFavorites) { movie ->
+                        items(state.filteredFavorites) { movie ->
 
                             FavoriteMovieCard(
                                 movie = movie,
                                 onMovieClick = {
-                                    navController.navigate("detail/${movie.id}")
+                                    onIntent(FavoritesIntent.MovieClicked(movie.id))
                                 },
                                 onRemoveClick = {
-                                    // Şimdilik boş bırak
+                                    onIntent(FavoritesIntent.RemoveFavoriteClicked(movie.id))
+
                                 }
                             )
 
@@ -296,7 +298,10 @@ fun FavoriteList(navController: NavController,
 @Composable
 fun FavoritesScreenPreview() {
     CineBee_Theme {
-        EmptyFavoritesScreen(NavController(LocalContext.current))
+        EmptyFavoritesScreen(
+            NavController(LocalContext.current),
+            onIntent = {}
+        )
     }
 
 }
@@ -305,7 +310,7 @@ fun FavoritesScreenPreview() {
 @Composable
 fun FavoritesScreenPrevieww() {
     CineBee_Theme {
-        FavoriteList(navController = NavController(LocalContext.current))
+        FavoriteList(navController = NavController(LocalContext.current), onIntent = {}, state = FavoritesState())
     }
 
 }

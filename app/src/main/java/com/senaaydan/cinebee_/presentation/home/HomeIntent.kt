@@ -3,7 +3,7 @@ package com.senaaydan.cinebee_.presentation.home
 import com.senaaydan.cinebee_.domain.model.Movie
 import java.util.Objects
 
-sealed class HomeIntent (){
+sealed class HomeIntent {
 
 
     object FavoritesClicked : HomeIntent()
