@@ -1,41 +1,103 @@
 package com.senaaydan.cinebee_.presentation.home
 
+
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.senaaydan.cinebee_.core.navigation.NavigationEvent
 import com.senaaydan.cinebee_.data.local.DummyData
+import com.senaaydan.cinebee_.data.local.DummyData.categories
+import com.senaaydan.cinebee_.data.repository.MovieRepository
 import com.senaaydan.cinebee_.domain.model.Category
+import com.senaaydan.cinebee_.presentation.favorites.FavoritesIntent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-class HomeViewModel : ViewModel() {
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val repository: MovieRepository): ViewModel()
+{
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
-    private val allCategories : List<Category> = DummyData.categories
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
         loadMovies()
     }
 
-    fun loadMovies() {
-        _state.value = _state.value.copy(categories = allCategories)
+    private fun loadMovies() {
+        viewModelScope.launch {
+
+            _state.value = _state.value.copy(
+                categories = categories,
+                isLoading = true,
+                error = null
+            )
+
+            try {
+
+                val categories = repository.getCategories()
+                _state.value = _state.value.copy(
+                    categories = categories,
+                    isLoading = false
+                )
+
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Bir hata oluştu"
+                )
+            }
+        }
     }
+
 
 
     fun onIntent(intent: HomeIntent) {
         when (intent){
-            is HomeIntent.FavoritesClicked -> Unit
-            // Navigate kurarken doldurulacak
+            is HomeIntent.FavoritesClicked -> {
+                FavoritesClicked()
+            }
 
-            is HomeIntent.MovieClicked -> Unit
+
+            is HomeIntent.MovieClicked -> {
+                MovieClicked(intent.movie.id)
+            }
 
 
             is HomeIntent.SearchQueryChanged -> {
-                _state.value = _state.value.copy(searchQuery = intent.query)
-                val filteredMovies = allCategories.flatMap { it.movies }.filter {
-                    it.title.startsWith(intent.query, ignoreCase = true)
-                }
-                _state.value = _state.value.copy(searchResults = filteredMovies)
+              SearchQueryChanged(intent.query)
             }
+        }
+
+    }
+
+    private fun FavoritesClicked(){
+        viewModelScope.launch {
+            _navigationEvent.emit(NavigationEvent.NavigateToFavorites)
+        }
+
+    }
+    private fun MovieClicked(movieId: Int){
+        viewModelScope.launch {
+            _navigationEvent.emit(NavigationEvent.NavigateToDetail(movieId))
+        }
+
+    }
+    private fun SearchQueryChanged(query: String){
+        _state.value = _state.value.copy(searchQuery = query)
+        viewModelScope.launch {
+            val filteredMovies =
+                repository.searchMovies(query)
+
+            _state.value = _state.value.copy(
+                searchResults = filteredMovies
+            )
         }
 
     }

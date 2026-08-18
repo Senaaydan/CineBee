@@ -2,8 +2,13 @@ package com.senaaydan.cinebee_.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -16,8 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.senaaydan.cinebee_.ui.theme.CineBee_Theme
 import androidx.compose.material3.Text
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.input.ImeAction
 
-
+/*
 @Composable
 fun SearchBar(query: String, onQueryChange: (String) -> Unit, placeholder: String)
 {
@@ -43,4 +50,70 @@ fun SearchBarPreview() {
         SearchBar(query = "", onQueryChange = {}, placeholder = "Film Ara...")
     }
 }
+*/
 
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    placeholder: String,
+    onSearch: () -> Unit,
+    onSearchBarClick: () -> Unit = {}
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        placeholder = {
+            Text(text = placeholder)
+        },
+        leadingIcon = {
+            IconButton(
+                onClick = {
+                    onSearch()
+                }
+            ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search"
+            ) }
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        onQueryChange("")
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear Search"
+                    )
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp).onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    onSearchBarClick()
+                }
+            },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch()
+            }
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SearchBarPreview() {
+    CineBee_Theme {
+        SearchBar(query = "", onQueryChange = {}, placeholder = "Film Ara...", onSearch = {})
+    }
+}

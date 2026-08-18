@@ -27,21 +27,12 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = CinebeeYellow,
     secondary = CinebeeOrange,
-    background = CineBeeBackground,
-    surface = CineBeeSurface,
+    background = Color.White,
+    surface = Color.White,
     onPrimary = Color.Black,
-    onBackground = CinebeeText,
-    onSurface = CinebeeText
+    onBackground = Color.Black,
+    onSurface = Color.Black
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
 
 

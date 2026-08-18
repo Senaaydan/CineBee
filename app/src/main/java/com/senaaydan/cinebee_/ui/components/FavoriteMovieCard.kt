@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
@@ -25,10 +26,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.senaaydan.cinebee_.data.local.DummyData
 import com.senaaydan.cinebee_.domain.model.Movie
 import com.senaaydan.cinebee_.ui.theme.CineBee_Theme
@@ -48,11 +52,19 @@ fun FavoriteMovieCard(movie: Movie,
 
          Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.primary).width(120.dp).fillMaxHeight()) {
 
-            // film afişi buraya
+             AsyncImage(
+                 model = movie.imageUrl,
+                 contentDescription = movie.title,
+                 modifier = Modifier
+                     .fillMaxWidth()
+                     .height(150.dp)
+                     .clip(RoundedCornerShape(12.dp)),
+                 contentScale = ContentScale.Crop
+             )
          }
 
          Column(modifier = Modifier.fillMaxSize().weight(1f).padding(10.dp,0.dp)) {
-              // film bilgileri buraya
+
              Spacer(modifier = Modifier.size(5.dp))
              Row(modifier = Modifier.align(Alignment.Start)) {
                  Column() { Text(
@@ -85,7 +97,7 @@ fun FavoriteMovieCard(movie: Movie,
              Row() {
                  Icon(imageVector = Icons.Default.Star, contentDescription = "IMDdb", tint = Color.Yellow)
                  Spacer(modifier = Modifier.size(10.dp))
-                 Text(text = "${movie.imdb}")
+                 Text(text = " ${String.format("%.1f", movie?.imdb ?: 0.0)}")
 
              }
              Spacer(modifier = Modifier.size(5.dp))

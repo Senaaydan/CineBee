@@ -7,4 +7,5 @@ sealed class FavoritesIntent {
     data class RemoveFavoriteClicked(val movieId: Int) : FavoritesIntent()
     data class MovieClicked(val movieId:Int) : FavoritesIntent()
     object BrowseMoviesClicked : FavoritesIntent()
+
 }

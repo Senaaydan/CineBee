@@ -1,6 +1,8 @@
 package com.senaaydan.cinebee_.presentation.favorites
 
+import android.R
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +39,7 @@ import com.senaaydan.cinebee_.ui.components.FavoriteMovieCard
 import com.senaaydan.cinebee_.domain.model.Movie
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,17 +47,59 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.senaaydan.cinebee_.ui.components.SearchBar
 import com.senaaydan.cinebee_.data.local.DummyData.categories
+import com.senaaydan.cinebee_.presentation.settings.AppStrings
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(navController: NavController,state: FavoritesState,onIntent :(FavoritesIntent) -> Unit ) {
+fun FavoritesScreen(navController: NavController,state: FavoritesState,onIntent :(FavoritesIntent) -> Unit , strings: AppStrings) {
 
 
-    if (state.favoriteMovies.isEmpty()) {
-        EmptyFavoritesScreen(navController, onIntent= onIntent )
+   /* if (state.favoriteMovies.isEmpty()) {
+        EmptyFavoritesScreen(navController, onIntent= onIntent,strings=strings)
     } else {
-        FavoriteList(navController=navController, state=state,onIntent= onIntent)
+        FavoriteList(state=state,onIntent= onIntent,strings=strings)
+    }*/
+
+
+    when {
+        state.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        state.error != null -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = state.error,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
+        state.favoriteMovies.isEmpty() -> {
+            EmptyFavoritesScreen(
+                navController = navController,
+                onIntent = onIntent,
+                strings = strings
+            )
+        }
+
+        else -> {
+            FavoriteList(
+                state = state,
+                onIntent = onIntent,
+                strings = strings
+            )
+        }
     }
 }
 
@@ -62,52 +107,22 @@ fun FavoritesScreen(navController: NavController,state: FavoritesState,onIntent 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmptyFavoritesScreen(
-    navController: NavController,onIntent :(FavoritesIntent) -> Unit = {}
+    navController: NavController,onIntent :(FavoritesIntent) -> Unit = {},strings: AppStrings
 ) {
 
-
-    Scaffold(
-
-        topBar = {
-
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Bookmark",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-
-
-                    }
-                },
-
-                title = { Text(text = "Favorilerim ") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-
-
-            )
-
-        }
-    )
-    { paddingValues ->
         Column(
 
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+                .fillMaxSize(),
+                //.padding(paddingValues),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text(text = "Favori listesi boş", fontWeight = FontWeight.W600)
+            Text(text = strings.favoritesEmpty, fontWeight = FontWeight.W600)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text( text =  "Favorilerinizi kalp ikonuna tıklayarak ekleyebilirsiniz.", fontWeight = FontWeight.Normal, fontStyle = FontStyle.Italic )
+            Text( text =  strings.heartClick, fontWeight = FontWeight.Normal, fontStyle = FontStyle.Italic )
             Spacer(modifier = Modifier.height(16.dp))
             Column()
             {
@@ -123,65 +138,26 @@ fun EmptyFavoritesScreen(
                     )
                 }
 
-                Text(text =  "Filmleri keşfet!", textAlign = TextAlign.Center)
+                Text(text =  strings.discover, textAlign = TextAlign.Center)
 
             }
         }
     }
-}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteList(navController: NavController,
-                 state: FavoritesState,onIntent: (FavoritesIntent) -> Unit) {
-
-
-    /* state.favoriteMovies.filter {
-        it.title.startsWith(state.searchQuery, ignoreCase = true)
-    }*/
-
-
-    Scaffold(
-
-        topBar = {
-
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Bookmark",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-
-
-                    }
-                },
-
-                title = { Text(text = "Favorilerim ") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-
-
-            )
+fun FavoriteList(state: FavoritesState,onIntent: (FavoritesIntent) -> Unit,strings: AppStrings) {
 
 
 
-        }
-    )
-    {
-
-            paddingValues ->
-        Column(modifier = Modifier.fillMaxWidth().padding(paddingValues)) {
-            SearchBar(query = state.searchQuery, onQueryChange = { onIntent(FavoritesIntent.SearchQueryChanged(it))  }, placeholder = "Favorilerimde Ara..."
-            )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            SearchBar(query = state.searchQuery, onQueryChange = { onIntent(FavoritesIntent.SearchQueryChanged(it))  }, placeholder = "Favorilerimde Ara...", onSearch = {})
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                    .fillMaxSize(),
+
                 contentPadding = PaddingValues(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -220,12 +196,13 @@ fun FavoriteList(navController: NavController,
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 Text(
-                                    text = "Favori Bulunamadı",
+                                    text = strings.movieNotFound,
                                     style = MaterialTheme.typography.titleLarge
                                 )
 
-                                Text(
-                                    text = "{$state.searchQuery} isimli favori bulunamadı.",
+
+                                    Text(
+                                        text = strings.favoriteNotFoundWithQuery.format(state.searchQuery),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -241,13 +218,13 @@ fun FavoriteList(navController: NavController,
                             ) {
 
                                 Text(
-                                    text = "Arama Sonuçları",
+                                    text = strings.searchResult,
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
 
                                 Text(
-                                    text = "${state.filteredFavorites.size} film bulundu",
+                                    text = "${state.filteredFavorites.size} ${strings.movieFound}",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -276,7 +253,7 @@ fun FavoriteList(navController: NavController,
 
 
             }
-        }
+
     }
 
 
@@ -293,14 +270,14 @@ fun FavoriteList(navController: NavController,
 
 
 
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun FavoritesScreenPreview() {
     CineBee_Theme {
         EmptyFavoritesScreen(
             NavController(LocalContext.current),
-            onIntent = {}
+
         )
     }
 
@@ -310,7 +287,8 @@ fun FavoritesScreenPreview() {
 @Composable
 fun FavoritesScreenPrevieww() {
     CineBee_Theme {
-        FavoriteList(navController = NavController(LocalContext.current), onIntent = {}, state = FavoritesState())
+        FavoriteList( onIntent = {}, state = FavoritesState())
     }
 
 }
+*/

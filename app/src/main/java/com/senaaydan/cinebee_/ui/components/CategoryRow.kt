@@ -10,12 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.senaaydan.cinebee_.domain.model.Category
 import com.senaaydan.cinebee_.domain.model.Movie
+import com.senaaydan.cinebee_.presentation.settings.AppStrings
 
 
- @Composable
+@Composable
  fun CategoryRow(
      category: Category,
-     MovieClick : (Movie) -> Unit
+     MovieClick : (Movie) -> Unit,
+
  ){
   Column(modifier = Modifier.fillMaxSize().padding(vertical = 8.dp))
   { Text(text = category.title,

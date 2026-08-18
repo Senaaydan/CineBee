@@ -10,12 +10,12 @@ data class Movie(
     val id : Int ,
     val title: String,
     val imageUrl : String,
-    val imdb: Double =0.0,
+    val imdb: Double = 0.0,
     val year: String ="2023",
     val duration: String ="120 dk",
-    val description: String ="film konusu skdcfvmvndjl lmdsfkldşösdl fdmkgmşlsdvfdöş ldmflvdöd",
+    val description: String ="film konusu",
     val cast: List<Actor> =emptyList(),
-    val genre: String = "Bilim Kurgu"
+    val genre: String
 
 )
 
